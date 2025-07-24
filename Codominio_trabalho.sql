@@ -50,7 +50,7 @@ CREATE TABLE Reserva_Area(
 	Data_Reserva TIMESTAMP NOT NULL, 
 	
 	PRIMARY KEY(ID_Reserva),
-	FOREIGN KEY(ID_Area) REFERENCES Area_Comum(ID_Area)
+	FOREIGN KEY(ID_Area) REFERENCES Area_Comum(ID_Area),
 	FOREIGN KEY(CPF_Condomino) REFERENCES Condomino(CPF_Condomino)
 );
 

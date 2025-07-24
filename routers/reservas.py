@@ -1,18 +1,18 @@
 from fastapi import APIRouter, HTTPException
 from db import get_connection
-from models import Condomino
+from models import ReservaAreaComum
 from typing import List, Optional
 
 router = APIRouter()
 
 @router.post("/Condominos")
-async def criar_condomino(cdm: Condomino):
+async def criar_condomino(res: ReservaAreaComum):
     conn = get_connection()
     cur = conn.cursor()
 
     try:
         cur.execute(
-            (cdm.CPF_Condomino, cdm.Nome_Condomino, cdm.Data_Nasc, cdm.ID_Telefone)
+            (res.CPF_Condomino, res.Nome_Condomino, res.Data_Nasc, res.ID_Telefone)
         )
 
         conn.commit()
@@ -45,7 +45,7 @@ async def listar_condominos():
     ]
 
 @router.put("/Condominos/{CPF}")
-async def atualizar_condomino(CPF: str, cdm: Condomino):
+async def atualizar_condomino(CPF: str, res: Condomino):
     conn = get_connection()
     cur = conn.cursor()
     try:
@@ -55,7 +55,7 @@ async def atualizar_condomino(CPF: str, cdm: Condomino):
             SET Nome_Condomino = %s, Data_Nasc = %s, ID_Telefone = %s
             WHERE CPF_Condomino = %s
             """,
-            (cdm.Nome_Condomino, cdm.Data_Nasc, cdm.ID_Telefone, CPF)
+            (res.Nome_Condomino, res.Data_Nasc, res.ID_Telefone, CPF)
         )
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Condômino não encontrado")
