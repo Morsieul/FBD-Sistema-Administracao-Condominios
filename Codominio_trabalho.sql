@@ -30,7 +30,7 @@ CREATE TABLE Dependente(
 
 CREATE SEQUENCE ID_Area_seq;
 CREATE TABLE Area_Comum(
-	ID_area INT DEFAULT nextval('ID_Area_seq'),
+	ID_Area INT DEFAULT nextval('ID_Area_seq'),
 	Nome_Local VARCHAR(30) NOT NULL,
 	CPF_Condomino VARCHAR(11), -- Pode ser nulo, caso a área exista mesmo sem reserva
 	Data_Reserva TIMESTAMP, -- Pode ser nulo, caso a área exista mesmo sem reserva
@@ -39,12 +39,28 @@ CREATE TABLE Area_Comum(
 	FOREIGN KEY(CPF_Condomino) REFERENCES Condomino(CPF_Condomino)
 );
 
+ALTER TABLE Area_Comum DROP CPF_Condomino;
+ALTER TABLE Area_Comum DROP Data_Reserva;
+
+CREATE SEQUENCE ID_Reserva_seq;
+CREATE TABLE Reserva_Area(
+	ID_Reserva INT DEFAULT nextval('ID_Reserva_seq'),
+	ID_Area INT NOT NULL,
+	CPF_Condomino VARCHAR(11) NOT NULL,
+	Data_Reserva TIMESTAMP NOT NULL, 
+	
+	PRIMARY KEY(ID_Reserva),
+	FOREIGN KEY(ID_Area) REFERENCES Area_Comum(ID_Area)
+	FOREIGN KEY(CPF_Condomino) REFERENCES Condomino(CPF_Condomino)
+);
+
+
 CREATE TABLE Apartamento(
 	Numero_Apartamento INT NOT NULL,
 	CPF_Condomino VARCHAR(11), -- Pode ser nulo, caso não esteja alugado
 	Descricao_Comodo VARCHAR(200) NOT NULL, -- quantidade de quartos, banheiros, etc
 	qtd_quartos INT NOT NULL,
-	Valor FLOAT  NOT NULL,
+	Valor FLOAT NOT NULL,
 	
 	PRIMARY KEY(Numero_Apartamento),
 	FOREIGN KEY(CPF_Condomino) REFERENCES Condomino(CPF_Condomino)

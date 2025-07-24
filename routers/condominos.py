@@ -44,8 +44,8 @@ async def listar_condominos():
         ) for d in rows
     ]
 
-@router.put("/Condominos/{cpf}")
-async def atualizar_condomino(cpf: str, cdm: Condomino):
+@router.put("/Condominos/{CPF}")
+async def atualizar_condomino(CPF: str, cdm: Condomino):
     conn = get_connection()
     cur = conn.cursor()
     try:
@@ -55,10 +55,10 @@ async def atualizar_condomino(cpf: str, cdm: Condomino):
             SET Nome_Condomino = %s, Data_Nasc = %s, ID_Telefone = %s
             WHERE CPF_Condomino = %s
             """,
-            (cdm.Nome_Condomino, cdm.Data_Nasc, cdm.ID_Telefone, cpf)
+            (cdm.Nome_Condomino, cdm.Data_Nasc, cdm.ID_Telefone, CPF)
         )
         if cur.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Condomino não encontrado")
+            raise HTTPException(status_code=404, detail="Condômino não encontrado")
         conn.commit()
     except Exception as e:
         conn.rollback()
@@ -66,16 +66,17 @@ async def atualizar_condomino(cpf: str, cdm: Condomino):
     finally:
         cur.close()
         conn.close()
-    return {"msg": "Condomino atualizado com sucesso"}
+    return {"msg": "Condômino atualizado com sucesso"}
 
-@router.delete("/Condominos/{cpf}")
-async def deletar_condomino(cpf: str):
+
+@router.delete("/Condominos/{CPF}")
+async def deletar_condomino(CPF: str):
     conn = get_connection()
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM condomino WHERE CPF_Condomino = %s", (cpf,))
+        cur.execute("DELETE FROM condomino WHERE CPF_Condomino = %s", (CPF))
         if cur.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Condomino não encontrado")
+            raise HTTPException(status_code=404, detail="Condômino não encontrado")
         conn.commit()
     except Exception as e:
         conn.rollback()
@@ -83,4 +84,4 @@ async def deletar_condomino(cpf: str):
     finally:
         cur.close()
         conn.close()
-    return {"msg": "Condomino deletado com sucesso"}
+    return {"msg": "Condômino deletado com sucesso"}
