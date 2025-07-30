@@ -6,27 +6,27 @@ from typing import List, Optional
 router = APIRouter()
 
 @router.post("/Condominos")
-async def criar_condominio(cdm : Condomino):
+async def criar_condomino(cdm: Condomino):
     conn = get_connection()
     cur = conn.cursor()
 
     try:
         cur.execute(
-            ("INSERT INTO condomino (CPF_Condomino, Nome_Condomino, Data_Nasc, ID_Telefone) values (%s, %s, %s, %s)", (cdm.CPF_Condomino, cdm.Nome_Condomino, cdm.Data_Nasc, cdm.ID_Telefone))
+            (cdm.CPF_Condomino, cdm.Nome_Condomino, cdm.Data_Nasc, cdm.ID_Telefone)
         )
 
         conn.commit()
 
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail="Erro :(")
+        raise HTTPException(status_code=400, detail="Erro ao adicionar condômino")
     finally:
         cur.close()
         conn.close()
     return {"msg: Condômino criado com sucesso!"}
 
 
-@router.get("/Condominos", response_model= List[Condomino])
+@router.get("/Condominos", response_model=List[Condomino])
 async def listar_condominos():
     conn = get_connection()
     cur = conn.cursor()
@@ -67,7 +67,6 @@ async def atualizar_condomino(CPF: str, cdm: Condomino):
         cur.close()
         conn.close()
     return {"msg": "Condômino atualizado com sucesso"}
-
 
 @router.delete("/Condominos/{CPF}")
 async def deletar_condomino(CPF: str):

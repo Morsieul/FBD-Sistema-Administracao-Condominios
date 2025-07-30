@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
 from typing import List, Annotated
-from routers import condominos
+from routers import condominos#, dependentes,areas, telefones
 
 app = FastAPI(
     tittle = "Api Condominio",
@@ -9,3 +9,6 @@ app = FastAPI(
 )
 
 app.include_router(condominos.router, prefix="/condominios", tags=["Condominios"])
+##app.include_router(dependentes.router, prefix="/dependentes", tags=["Dependentes"])
+##app.include_router(telefones.router, prefix="/telefones", tags=["Telefones"])
+##app.include_router(areas.router, prefix="/areascomuns", tags=["AreasComuns"])

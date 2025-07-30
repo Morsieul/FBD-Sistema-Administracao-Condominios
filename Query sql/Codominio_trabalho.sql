@@ -50,7 +50,7 @@ CREATE TABLE Reserva_Area(
 	Data_Reserva TIMESTAMP NOT NULL, 
 	
 	PRIMARY KEY(ID_Reserva),
-	FOREIGN KEY(ID_Area) REFERENCES Area_Comum(ID_Area)
+	FOREIGN KEY(ID_Area) REFERENCES Area_Comum(ID_Area),
 	FOREIGN KEY(CPF_Condomino) REFERENCES Condomino(CPF_Condomino)
 );
 
@@ -230,67 +230,3 @@ INSERT INTO Aluguel(numero_apartamento, valor) values
 	(601, 4500.00),
 	(602, 4800.00)
 ;
-
-
-
---- # #  # # # Consultas: # # # #
-
--- Total pago por cada condômino:
-
-SELECT 
-  c.Nome_Condomino,
-  c.CPF_Condomino,
-  COUNT(p.ID_Pagamento) AS Num_Pagamentos,
-  SUM(a.Valor) AS Total_Pago
-FROM Pagamento p
-JOIN Condomino c ON p.CPF_Condomino = c.CPF_Condomino
-JOIN Apartamento a ON p.Numero_Apartamento = a.Numero_Apartamento
-GROUP BY c.Nome_Condomino, c.CPF_Condomino;
-
-
--- Áreas comuns reservadas nos últimos 7 dias:
-
-SELECT ac.Nome_Local, ac.Data_Reserva, c.Nome_Condomino
-FROM Area_Comum ac
-JOIN Condomino c ON ac.CPF_Condomino = c.CPF_Condomino
-WHERE ac.Data_Reserva BETWEEN CURRENT_DATE AND CURRENT_DATE + INTERVAL '7 days'
-ORDER BY ac.Data_Reserva;
-
--- Apartamentos vagos(sem nenhum inquilino:
-
-SELECT a.Numero_Apartamento, a.Descricao_Comodo, a.Valor
-FROM Apartamento a
-WHERE a.CPF_Condomino IS NULL;
-
--- Histórico do Aluguel de um apartamento:
-
-SELECT 
-  a.Numero_Apartamento, 
-  c.Nome_Condomino,
-  al.Data_Entrada, 
-  al.Data_Saida
-FROM Aluguel al
-JOIN Apartamento a ON al.Numero_Apartamento = a.Numero_Apartamento
-LEFT JOIN Condomino c ON al.CPF_Condomino = c.CPF_Condomino
-ORDER BY a.Numero_Apartamento, al.Data_Entrada;
-
--- Condôminos com recibos emitidos, mas que não pagaram o Aluguel do mês atual. I.e Alguém que costuma
--- pagar o Aluguel, mas ainda não enviou o deste mês.
-
-SELECT 
-  c.Nome_Condomino,
-  c.CPF_Condomino,
-  r.ID_Recibo,
-  p.Data_Pagamento,
-  a.Numero_Apartamento
-FROM Recibo r
-JOIN Pagamento p ON r.ID_Pagamento = p.ID_Pagamento
-JOIN Condomino c ON r.CPF_Condomino = c.CPF_Condomino
-JOIN Apartamento a ON p.Numero_Apartamento = a.Numero_Apartamento
-WHERE DATE_TRUNC('month', p.Data_Pagamento) < DATE_TRUNC('month', CURRENT_DATE)
-  AND c.CPF_Condomino NOT IN (
-    SELECT DISTINCT CPF_Condomino
-    FROM Pagamento
-    WHERE DATE_TRUNC('month', Data_Pagamento) = DATE_TRUNC('month', CURRENT_DATE)
-  )
-ORDER BY c.Nome_Condomino;

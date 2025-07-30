@@ -1,25 +1,25 @@
 from pydantic import BaseModel
 from typing import List, Optional
-from datetime import date
+from datetime import date, datetime
 
 class Telefone(BaseModel):
-    ID_Telefone : int 
-    DDD : str
+    ID_Telefone: int 
+    DDD: str
     Telefone: str
 
 class TelefoneUpdate(BaseModel):
-    DDD : str
+    DDD: str
     Telefone: str
 
 class Condomino(BaseModel):
     CPF_Condomino: str
     Nome_Condomino: str
-    Data_Nasc: date
+    Data_Nasc: datetime
     ID_Telefone: int
 
 class CondominoUpdate(BaseModel):
     Nome_Condomino: str
-    Data_Nasc: date
+    Data_Nasc: datetime
     ID_Telefone: int
 
 
@@ -29,22 +29,23 @@ class Dependente(BaseModel):
     CPF_Condomino: str
     Nome_Dependente: str
 
-class DependenteUpdate(BaseModel):
-    # ID_Dependente: int 
-    # CPF_Dependente: str
-    # CPF_Condomino: str
-    Nome_Dependente: str    
-
 class AreaComum(BaseModel):
-    ID_area: int
+    ID_Area: int
     Nome_Local: str
-    CPF_Condomino: Optional[str] = None
-    Data_Reserva: Optional[date] = None
 
 class AreaComumUpdate(BaseModel):
     Nome_Local: str
-    CPF_Condomino: Optional[str] = None
-    Data_Reserva: Optional[date] = None
+
+class ReservaAreaComum(BaseModel):
+    ID_Reserva: int
+    ID_Area: int
+    CPF_Condomino: str
+    Data_Reserva: datetime
+
+class ReservaUpdate(BaseModel):
+    ID_Area: int
+    CPF_Condomino: str
+    Data_Reserva: datetime
 
 class Apartamento(BaseModel): 
     Numero_Apartamento: int 
@@ -64,15 +65,15 @@ class Aluguel(BaseModel):
     Numero_Apartamento: int
     CPF_Condomino: Optional[str] = None
     Valor: float
-    Data_Entrada: Optional[date] = None
-    Data_Saida: Optional[date] = None
+    Data_Entrada: Optional[datetime] = None
+    Data_Saida: Optional[datetime] = None
 
 class AluguelUpdate(BaseModel):
     Numero_Apartamento: int
     CPF_Condomino: Optional[str] = None
     Valor: float
-    Data_Entrada: Optional[date] = None
-    Data_Saida: Optional[date] = None
+    Data_Entrada: Optional[datetime] = None
+    Data_Saida: Optional[datetime] = None
 
 class Pagamento(BaseModel):
     ID_Pagamento: int

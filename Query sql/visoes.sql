@@ -30,7 +30,7 @@ WHERE CURRENT_DATE BETWEEN al.data_entrada AND al.data_saida
 CREATE VIEW vw_historico_detalhado_por_apartamento AS
 SELECT
   ap.numero_apartamento,
-  ap.descricao_comodos,
+  ap.descricao_comodo,
   al.valor AS valor_aluguel,
   al.data_entrada,
   al.data_saida,
@@ -46,3 +46,5 @@ LEFT JOIN Pagamento p ON p.numero_apartamento = ap.numero_apartamento AND p.cpf_
 LEFT JOIN Reserva_Area r ON r.cpf_condomino = c.cpf_condomino
 LEFT JOIN Area_Comum ac ON ac.id_area = r.id_area
 ORDER BY ap.numero_apartamento, al.data_entrada;
+
+select * from vw_historico_detalhado_por_apartamento
