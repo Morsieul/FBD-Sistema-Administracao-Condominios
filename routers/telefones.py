@@ -38,8 +38,8 @@ async def listar_telefones():
     return [
         Telefone(
             ID_Telefone=d[0],
-            ddd=d[1],
-            telefone=d[2]
+            DDD=d[1],
+            Telefone=d[2]
         ) for d in rows
     ]
 

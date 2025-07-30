@@ -37,13 +37,13 @@ async def listar_AreasComuns():
 
     return [
         AreaComum(
-            ID_AreaComum=d[0],
+            ID_Area=d[0],
             Nome_Local=d[1],
         ) for d in rows
     ]
 
-@router.put("/AreasComuns/{ID_AreaComum}")
-async def atualizar_AreaComum(ID_AreaComum: int, ac: AreaComum):
+@router.put("/AreasComuns/{ID_Area}")
+async def atualizar_AreaComum(ID_Area: int, ac: AreaComum):
     conn = get_connection()
     cur = conn.cursor()
     try:
