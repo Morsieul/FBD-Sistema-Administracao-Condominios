@@ -30,7 +30,7 @@ async def criar_AreaComum(ac: AreaComum):
 async def listar_AreasComuns():
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM AreaComum")
+    cur.execute("SELECT * FROM area_comum")
     rows = cur.fetchall()
     cur.close()
     conn.close()
