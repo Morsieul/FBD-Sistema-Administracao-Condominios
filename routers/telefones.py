@@ -1,30 +1,34 @@
 from fastapi import APIRouter, HTTPException
+from typing import List
 from db import get_connection
-from models import Telefone
-from typing import List, Optional
+from models import Telefone, TelefoneCreate  # Telefones separados para POST
 
 router = APIRouter()
 
 @router.post("/telefones")
-async def criar_telefone(tel: Telefone):
+async def criar_telefone(tel: TelefoneCreate):
     conn = get_connection()
     cur = conn.cursor()
 
     try:
         cur.execute(
-            (tel.ID_Telefone, tel.telefone)
+            """
+            INSERT INTO telefone (DDD, Telefone)
+            VALUES (%s, %s)
+            RETURNING ID_Telefone
+            """,
+            (tel.DDD, tel.Telefone)
         )
-
+        id_telefone = cur.fetchone()[0]
         conn.commit()
 
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail="Erro: ")
+        raise HTTPException(status_code=400, detail=f"Erro ao adicionar telefone: {str(e)}")
     finally:
         cur.close()
         conn.close()
-    return {"msg: Condômino criado com sucesso!"}
-
+    return {"msg": "Telefone criado com sucesso!", "ID_Telefone": id_telefone}
 
 @router.get("/telefones", response_model=List[Telefone])
 async def listar_telefones():
@@ -44,16 +48,17 @@ async def listar_telefones():
     ]
 
 @router.put("/telefones/{ID_Telefone}")
-async def atualizar_telefone(ID_Telefone: int, tel: Telefone):
+async def atualizar_telefone(ID_Telefone: int, tel: TelefoneCreate):
     conn = get_connection()
     cur = conn.cursor()
     try:
         cur.execute(
             """
             UPDATE telefone
-            SET ddd = %s, telefone = %s
+            SET DDD = %s, Telefone = %s
+            WHERE ID_Telefone = %s
             """,
-            (tel.ddd, tel.telefone)
+            (tel.DDD, tel.Telefone, ID_Telefone)
         )
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Telefone não encontrado")
@@ -71,7 +76,7 @@ async def deletar_telefone(ID_Telefone: int):
     conn = get_connection()
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM telefone WHERE ID_Telefone = %s", (ID_Telefone))
+        cur.execute("DELETE FROM telefone WHERE ID_Telefone = %s", (ID_Telefone,))
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Telefone não encontrado")
         conn.commit()

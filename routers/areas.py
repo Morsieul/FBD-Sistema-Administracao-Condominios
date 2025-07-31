@@ -1,33 +1,35 @@
 from fastapi import APIRouter, HTTPException
 from db import get_connection
-from models import AreaComum
+from models import AreaComum, AreaComumUpdate
 from typing import List, Optional
 
 router = APIRouter()
 
-@router.post("/AreasComuns")
-async def criar_AreaComum(ac: AreaComum):
+@router.post("/areas-comuns")
+async def criar_area(area: AreaComumUpdate):
     conn = get_connection()
     cur = conn.cursor()
-
     try:
         cur.execute(
-            (ac.ID_AreaComum, ac.Nome_Local)
+            """
+            INSERT INTO area_comum (Nome_Local)
+            VALUES (%s)
+            RETURNING ID_Area
+            """,
+            (area.Nome_Local,)
         )
-
+        id_area = cur.fetchone()[0]
         conn.commit()
-
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail="Erro ao adicionar Área Comum")
+        raise HTTPException(status_code=400, detail=f"Erro ao criar área comum: {str(e)}")
     finally:
         cur.close()
         conn.close()
-    return {"msg: Área Comum criada com sucesso!"}
+    return {"msg": "Área comum criada com sucesso", "ID_Area": id_area}
 
-
-@router.get("/AreasComuns", response_model=List[AreaComum])
-async def listar_AreasComuns():
+@router.get("/areas-comuns", response_model=List[AreaComum])
+async def listar_areas():
     conn = get_connection()
     cur = conn.cursor()
     cur.execute("SELECT * FROM area_comum")
@@ -36,49 +38,46 @@ async def listar_AreasComuns():
     conn.close()
 
     return [
-        AreaComum(
-            ID_Area=d[0],
-            Nome_Local=d[1],
-        ) for d in rows
+        AreaComum(ID_Area=row[0], Nome_Local=row[1]) for row in rows
     ]
 
-@router.put("/AreasComuns/{ID_Area}")
-async def atualizar_AreaComum(ID_Area: int, ac: AreaComum):
+@router.put("/areas-comuns/{id_area}")
+async def atualizar_area(id_area: int, area: AreaComumUpdate):
     conn = get_connection()
     cur = conn.cursor()
     try:
         cur.execute(
             """
-            UPDATE AreaComum
-            SET ID_AreaComum = %s, Nome_Local = %s
-            WHERE ID_AreaComum = %s
+            UPDATE area_comum
+            SET Nome_Local = %s
+            WHERE ID_Area = %s
             """,
-            (ac.ID_Telefone, ac.Nome_Local)
+            (area.Nome_Local, id_area)
         )
         if cur.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Área Comum não encontrada")
+            raise HTTPException(status_code=404, detail="Área comum não encontrada")
         conn.commit()
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail=f"Erro ao atualizar: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Erro ao atualizar área comum: {str(e)}")
     finally:
         cur.close()
         conn.close()
-    return {"msg": "Área Comum atualizada com sucesso"}
+    return {"msg": "Área comum atualizada com sucesso"}
 
-@router.delete("/AreasComuns/{ID_AreaComum}")
-async def deletar_AreaComum(ID_AreaComum: int):
+@router.delete("/areas-comuns/{id_area}")
+async def deletar_area(id_area: int):
     conn = get_connection()
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM AreaComum WHERE ID_AreaComum = %s", (ID_AreaComum))
+        cur.execute("DELETE FROM area_comum WHERE ID_Area = %s", (id_area,))
         if cur.rowcount == 0:
-            raise HTTPException(status_code=404, detail="Área Comum não encontrada")
+            raise HTTPException(status_code=404, detail="Área comum não encontrada")
         conn.commit()
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail=f"Erro ao deletar: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Erro ao deletar área comum: {str(e)}")
     finally:
         cur.close()
         conn.close()
-    return {"msg": "Área Comum deletada com sucesso"}
+    return {"msg": "Área comum deletada com sucesso"}

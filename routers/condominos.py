@@ -1,29 +1,30 @@
 from fastapi import APIRouter, HTTPException
 from db import get_connection
-from models import Condomino
+from models import Condomino, CondominoUpdate
 from typing import List, Optional
 
 router = APIRouter()
 
-@router.post("/Condominos")
+@router.post("/condominos")
 async def criar_condomino(cdm: Condomino):
     conn = get_connection()
     cur = conn.cursor()
-
     try:
         cur.execute(
-            (cdm.CPF_Condomino, cdm.Nome_Condomino, cdm.Data_Nasc, cdm.ID_Telefone)
+            """
+            INSERT INTO condomino (CPF_Condomino, Nome_Condomino, Data_Nasc, ID_Telefone)
+            VALUES (%s, %s, %s, %s)
+            """,
+            (cdm.CPF_Condomino, cdm.Nome_Condomino, cdm.Data_Nasc.date(), cdm.ID_Telefone)
         )
-
         conn.commit()
-
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail="Erro ao adicionar condômino")
+        raise HTTPException(status_code=400, detail=f"Erro ao adicionar condômino: {str(e)}")
     finally:
         cur.close()
         conn.close()
-    return {"msg: Condômino criado com sucesso!"}
+    return {"msg": "Condômino criado com sucesso!"}
 
 
 @router.get("/Condominos", response_model=List[Condomino])
@@ -44,8 +45,8 @@ async def listar_condominos():
         ) for d in rows
     ]
 
-@router.put("/Condominos/{CPF}")
-async def atualizar_condomino(CPF: str, cdm: Condomino):
+@router.put("/condominos/{cpf}")
+async def atualizar_condomino(cpf: str, cdm: CondominoUpdate):
     conn = get_connection()
     cur = conn.cursor()
     try:
@@ -55,31 +56,31 @@ async def atualizar_condomino(CPF: str, cdm: Condomino):
             SET Nome_Condomino = %s, Data_Nasc = %s, ID_Telefone = %s
             WHERE CPF_Condomino = %s
             """,
-            (cdm.Nome_Condomino, cdm.Data_Nasc, cdm.ID_Telefone, CPF)
+            (cdm.Nome_Condomino, cdm.Data_Nasc.date(), cdm.ID_Telefone, cpf)
         )
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Condômino não encontrado")
         conn.commit()
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail=f"Erro ao atualizar: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Erro ao atualizar condômino: {str(e)}")
     finally:
         cur.close()
         conn.close()
     return {"msg": "Condômino atualizado com sucesso"}
 
-@router.delete("/Condominos/{CPF}")
-async def deletar_condomino(CPF: str):
+@router.delete("/condominos/{cpf}")
+async def deletar_condomino(cpf: str):
     conn = get_connection()
     cur = conn.cursor()
     try:
-        cur.execute("DELETE FROM condomino WHERE CPF_Condomino = %s", (CPF))
+        cur.execute("DELETE FROM condomino WHERE CPF_Condomino = %s", (cpf,))
         if cur.rowcount == 0:
             raise HTTPException(status_code=404, detail="Condômino não encontrado")
         conn.commit()
     except Exception as e:
         conn.rollback()
-        raise HTTPException(status_code=400, detail=f"Erro ao deletar: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Erro ao deletar condômino: {str(e)}")
     finally:
         cur.close()
         conn.close()

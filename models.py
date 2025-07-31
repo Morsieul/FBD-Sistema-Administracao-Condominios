@@ -11,6 +11,10 @@ class TelefoneUpdate(BaseModel):
     DDD: str
     Telefone: str
 
+class TelefoneCreate(BaseModel):
+    DDD: str
+    Telefone: str
+
 class Condomino(BaseModel):
     CPF_Condomino: str
     Nome_Condomino: str
@@ -24,6 +28,12 @@ class CondominoUpdate(BaseModel):
 
 
 class Dependente(BaseModel):
+    ID_Dependente: int 
+    CPF_Dependente: str
+    CPF_Condomino: str
+    Nome_Dependente: str
+
+class DependenteUpdate(BaseModel):
     ID_Dependente: int 
     CPF_Dependente: str
     CPF_Condomino: str
@@ -51,8 +61,8 @@ class Apartamento(BaseModel):
     Numero_Apartamento: int 
     CPF_Condomino: Optional[str] = None
     Descricao_Comodo: str
-    qtd_quartos: int 
-    Valor: float
+    qtd_quartos: Optional[int] = None
+    Valor: Optional[float] = None
 
 class ApartamentoUpdate(BaseModel):  
     CPF_Condomino: Optional[str] = None
